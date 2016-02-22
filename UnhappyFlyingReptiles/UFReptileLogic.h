@@ -1,0 +1,45 @@
+/*
+File:		UFReptileLogic.h
+Project:	Unhappy Flying Reptiles
+Author(s):	Jorge Ramirez
+Description:
+	This header file contains the class definition for the UFReptileLogic class.
+*/
+
+
+#pragma once
+
+#include <stdlib.h>
+
+
+/*
+Name: UFReptileLogic
+Description:
+	This class is designed to model the movement logic behind the flying reptile.
+*/
+class UFReptileLogic
+{
+private:
+	int xOffset; // The offset from the left of the screen
+	int yOffset; // The offset from the bottom of the screen
+
+	int xVelocity; // The velocity in the x-axis. Positive values go to the right, negative to the left.
+	int yVelocity; // The velocity in the y-axis. Positive values go towards the top of the screen, negative to the bottom.
+
+	unsigned int friction; // The rate at which the x velocity tends towards 0.
+	unsigned int gravity; // The rate at which the y velocity decreases until the y offset is 0.
+
+public:
+	UFReptileLogic(int leftOffset, int bottomOffset);
+
+	int GetLeftOffset() { return xOffset; }
+	int GetBottomOffset() { return yOffset; }
+
+	int GetHorizontalVel() { return xVelocity; }
+	int GetVerticaltalVel() { return yVelocity; }
+
+	void Tick();
+
+	void SetOffsetAndVelocity(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity);
+};
+
