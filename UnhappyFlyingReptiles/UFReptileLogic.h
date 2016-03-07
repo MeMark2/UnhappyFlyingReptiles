@@ -12,6 +12,9 @@ Description:
 #include <stdlib.h>
 #include <time.h>
 
+#define REPTILE_STATE_FALLING 0
+#define REPTILE_STATE_FLYING 1
+
 
 /*
 Name: UFReptileLogic
@@ -42,8 +45,14 @@ private:
 	static int CalcTicksToNextFlap();
 	int ticksToNextFlap;
 
+	int reptileRotation;
+
+	void RotateClockwise(int degrees);
+	void RotateCounterClockwise(int degrees);
+
 public:
 	UFReptileLogic(int leftOffset, int bottomOffset);
+	UFReptileLogic(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity);
 
 	int GetLeftOffset() { return xOffset; }
 	void SetLeftOffset(int offset) { xOffset = offset; }
@@ -52,6 +61,11 @@ public:
 
 	int GetHorizontalVel() { return xVelocity; }
 	int GetVerticaltalVel() { return yVelocity; }
+
+	int GetReptileRotation() { return reptileRotation; }
+
+	int GetReptileState() { return reptileState;  }
+	void SetReptileState(int stateCode);
 
 	void Tick();
 

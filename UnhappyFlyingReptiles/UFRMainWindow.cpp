@@ -19,6 +19,7 @@ BEGIN_MESSAGE_MAP(UFRMainWindow, CFrameWnd)
 	ON_WM_ERASEBKGND()
 	ON_WM_TIMER()
 	ON_WM_CLOSE()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -145,4 +146,14 @@ void UFRMainWindow::OnClose()
 	KillTimer(redrawTimerID);
 
 	CFrameWnd::OnClose();
+}
+
+
+void UFRMainWindow::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	CRect windowDimensions;
+	GetClientRect(windowDimensions);
+	gameLogic->Click(point.x, point.y, &windowDimensions);
+
+	CFrameWnd::OnLButtonDown(nFlags, point);
 }

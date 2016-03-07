@@ -27,6 +27,9 @@ private:
 	Bitmap* midground;
 	Bitmap* foreground;
 
+	int imageWidth;
+	int imageHeight;
+
 	Bitmap* slingshot1;
 	Bitmap* slingshot2;
 
@@ -36,8 +39,13 @@ private:
 	Graphics* bufferCanvas;
 
 	UFReptileLogic* reptileLogic;
+	int deadTicks; // To keep track of how long the reptile has been dead
+	int scaleRptlWidth;
+	int scaleRptlHeight;
 
 	void MakeTransparent(Bitmap* bmp, Color color);
+
+	bool reptileFliesLeft; // To keep track of the direction of flight of the reptile
 
 public:
 	UFRGame();
@@ -45,5 +53,7 @@ public:
 
 	void Draw(Graphics* canvas, CRect* dimensions);
 	void CalcGameState();
+
+	void Click(int windowX, int windowY, CRect* windowDimensions);
 };
 

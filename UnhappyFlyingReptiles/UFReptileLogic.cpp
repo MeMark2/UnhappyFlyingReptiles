@@ -15,10 +15,6 @@ Description:
 #define DEFAULT_FRICTION 1
 #define DEFAULT_GRAVITY 1
 
-#define REPTILE_STATE_FALLING 0
-#define REPTILE_STATE_FLYING 1
-#define REPTILE_STATE_ROLLING 2
-
 #define MAX_TICKS_BETWEEN_FLAPS 6
 #define MIN_TICKS_BETWEEN_FLAPS 3
 #define MAX_FLAP_STRENGTH 8
@@ -26,6 +22,8 @@ Description:
 #define DEFAULT_MAX_FLIGHT_THRESHOLD 300
 #define DEFAULT_MIN_FLIGHT_THRESHOLD 120
 
+#define ROTATION_DEGREES 360
+#define DEATH_SPIN_DEGREES 5
 
 /*
 Name:	UFReptileLogic()
@@ -50,6 +48,37 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 	reptileState = REPTILE_STATE_FLYING;
 	srand(NULL);
 	ticksToNextFlap = CalcTicksToNextFlap();
+
+	reptileRotation = 0;
+}
+
+/*
+Name:	UFReptileLogic()
+Params:
+int leftOffset - The initial xOffset for the reptile.
+int bottomOffset - The initial yOffset for the reptile.
+int horizontalVelocity - The initial horizontal velocity for the reptile.
+int verticalVelocity - The initial vertical velocity for the reptile.
+Description:
+The constructor for the UFReptileLogic class.
+The base movement information is set here.
+*/
+UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity)
+{
+	xOffset = leftOffset;
+	yOffset = bottomOffset;
+	xVelocity = horizontalVelocity;
+	yVelocity = verticalVelocity;
+	friction = DEFAULT_FRICTION;
+	gravity = DEFAULT_GRAVITY;
+	minFlightThreshold = DEFAULT_MIN_FLIGHT_THRESHOLD;
+	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
+
+	reptileState = REPTILE_STATE_FLYING;
+	srand(NULL);
+	ticksToNextFlap = CalcTicksToNextFlap();
+
+	reptileRotation = 0;
 }
 
 
@@ -73,6 +102,24 @@ void UFReptileLogic::Tick()
 		FlyTick();
 	}
 }
+
+
+void UFReptileLogic::SetReptileState(int stateCode)
+{
+	switch (stateCode)
+	{
+	case REPTILE_STATE_FLYING:
+		reptileState = REPTILE_STATE_FLYING;
+		reptileRotation = 0;
+		break;
+	case REPTILE_STATE_FALLING:
+		reptileState = REPTILE_STATE_FALLING;
+		break;
+	default:
+		break;
+	}
+}
+
 
 
 void UFReptileLogic::FlyTick()
@@ -126,6 +173,16 @@ void UFReptileLogic::FallTick()
 	xOffset += xVelocity;
 	yOffset += yVelocity;
 
+	// Calculate rotation
+	if (xVelocity > 0)
+	{
+		RotateClockwise(DEATH_SPIN_DEGREES);
+	}
+	else if (xVelocity < 0)
+	{
+		RotateCounterClockwise(DEATH_SPIN_DEGREES);
+	}
+
 	// Reptile can't ever be below 0 height
 	if (yOffset < 0)
 	{
@@ -163,15 +220,35 @@ void UFReptileLogic::FallTick()
 
 
 
+/*
+Name:	FlapWings()
+Params: None
+Return: void
+Description:
+This method adds a positive value to the yVelocity based on the strength of the reptile's falp.
+The flap strength is a random number within a range.
+*/
 void UFReptileLogic::FlapWings()
 {
 	yVelocity += (rand() % (MAX_FLAP_STRENGTH - MIN_FLAP_STRENGTH)) + MIN_FLAP_STRENGTH;
 }
 
+
+
+/*
+Name:	CalcTicksToNextFlap()
+Params: None
+Return: void
+Description:
+This method generates a random number of ticks (within a range) that represent the number of ticks it will take for the reptile
+to flap its wings again.
+*/
 int UFReptileLogic::CalcTicksToNextFlap()
 {
 	return (rand() % (MAX_TICKS_BETWEEN_FLAPS - MIN_TICKS_BETWEEN_FLAPS)) + MIN_TICKS_BETWEEN_FLAPS;
 }
+
+
 
 /*
 Name:	SetOffsetAndVelocity()
@@ -190,4 +267,36 @@ void UFReptileLogic::SetOffsetAndVelocity(int leftOffset, int bottomOffset, int 
 	yOffset = bottomOffset;
 	xVelocity = horizontalVelocity;
 	yVelocity = verticalVelocity;
+}
+
+
+
+/*
+Name:	RotateClockwise()
+Params: 
+int degrees - The number of degrees to rotate clockwise.
+Return: void
+Description:
+This method updates the reptile's current rotation angle based on the passed in number of degrees.
+The degrees passed in represent the number of degrees that the reptile rotates clockwise.
+*/
+void UFReptileLogic::RotateClockwise(int degrees)
+{
+	reptileRotation = (reptileRotation + degrees) % ROTATION_DEGREES;
+}
+
+
+
+/*
+Name:	RotateCounterClockwise()
+Params:
+int degrees - The number of degrees to rotate counter clockwise.
+Return: void
+Description:
+This method updates the reptile's current rotation angle based on the passed in number of degrees.
+The degrees passed in represent the number of degrees that the reptile rotates counter clockwise.
+*/
+void UFReptileLogic::RotateCounterClockwise(int degrees)
+{
+	RotateClockwise(-degrees);
 }

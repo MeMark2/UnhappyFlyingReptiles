@@ -10,13 +10,15 @@ Description:
 #include <list>
 
 #define BYTES_PER_PIXEL 4
-#define SLINGSHOT_SCALE 0.5
-#define REPTILE_SCALE 0.5
+#define SLINGSHOT_SCALE 0.7
+#define REPTILE_SCALE 0.7
 
 #define INIT_LEFT_OFFSET 0
-#define INIT_GROUND_OFFSET 150
-#define DEFAULT_HORIZONTAL_VELOCITY 7
-#define DEFAULT_VERTICAL_VELOCITY 20
+#define INIT_GROUND_OFFSET 300
+#define DEFAULT_HORIZONTAL_VELOCITY 10
+#define DEFAULT_VERTICAL_VELOCITY 0
+
+#define REPTILE_RESET_TICKS 15
 
 
 
@@ -30,8 +32,6 @@ Description:
 */
 UFRGame::UFRGame()
 {
-	reptileLogic = new UFReptileLogic(INIT_LEFT_OFFSET, INIT_GROUND_OFFSET);
-
 	background = new Bitmap(TEXT(".\\Background.bmp"));
 	midground = new Bitmap(TEXT(".\\Midground.bmp"));
 	foreground = new Bitmap(TEXT(".\\Foreground.bmp"));
@@ -46,6 +46,19 @@ UFRGame::UFRGame()
 
 	MakeTransparent(midground, Color(0, 255, 0));
 	MakeTransparent(foreground, Color(0, 255, 0));
+
+	// The natural size of the background image
+	imageWidth = background->GetWidth();
+	imageHeight = background->GetHeight();
+
+	// Calculate the scaled size of the reptile
+	scaleRptlWidth = reptile->GetWidth() * REPTILE_SCALE;
+	scaleRptlHeight = reptile->GetHeight() * REPTILE_SCALE;
+
+	// Start the reptile off the screen
+	reptileLogic = new UFReptileLogic(0 - scaleRptlWidth, INIT_GROUND_OFFSET, DEFAULT_HORIZONTAL_VELOCITY, DEFAULT_VERTICAL_VELOCITY);
+	deadTicks = 0; 
+	reptileFliesLeft = false;
 }
 
 
@@ -135,26 +148,18 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 	int windowWidth = dimensions->Width();
 	int windowHeight = dimensions->Height();
 
-	// The natural size of the background image
-	int imageWidth = background->GetWidth();
-	int imageHeight = background->GetHeight();
-
 	// Calculate the scaled size of the slingshot
 	int scaleSlngWidth = slingshot1->GetWidth() * SLINGSHOT_SCALE;
 	int scaleSlngHeight = slingshot1->GetHeight() * SLINGSHOT_SCALE;
 
-	// Calculate the scaled size of the reptile
-	int scaleRptlWidth = reptile->GetWidth() * REPTILE_SCALE;
-	int scaleRptlHeight = reptile->GetHeight() * REPTILE_SCALE;
-
 	// If the reptile is out of bounds of the screen, draw it on the other side
-	if (reptileLogic->GetLeftOffset() > dimensions->Width())
+	if (reptileLogic->GetLeftOffset() > imageWidth)
 	{
 		reptileLogic->SetLeftOffset(-scaleRptlWidth);
 	}
 	else if (reptileLogic->GetLeftOffset() < -scaleRptlWidth)
 	{
-		reptileLogic->SetLeftOffset(dimensions->Width());
+		reptileLogic->SetLeftOffset(imageWidth);
 	}
 
 	// Draw Backdrop to buffer
@@ -165,9 +170,18 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 	// Draw further part of slingshot to buffer
 	bufferCanvas->DrawImage(slingshot1, 0, imageHeight - scaleSlngHeight, scaleSlngWidth, scaleSlngHeight);
 
-	// Draw reptile to buffer
+	// Set up tranformations for reptile:
+	// center, rotate, and return to original offset
+	bufferCanvas->TranslateTransform(-(reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), -(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2) );
+	bufferCanvas->RotateTransform(reptileLogic->GetReptileRotation(), MatrixOrderAppend);
+	bufferCanvas->TranslateTransform((reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), (imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2), MatrixOrderAppend);
+
+	// Draw reptile with transformations
 	bufferCanvas->DrawImage(reptile, reptileLogic->GetLeftOffset(), imageHeight - scaleRptlHeight - reptileLogic->GetBottomOffset(),
 		scaleRptlWidth, scaleRptlHeight);
+
+	// Clear transformations
+	bufferCanvas->ResetTransform();
 
 	// Draw closer part of slingshot to buffer
 	bufferCanvas->DrawImage(slingshot2, 0, imageHeight - scaleSlngHeight, scaleSlngWidth, scaleSlngHeight);
@@ -186,12 +200,46 @@ Description:
 */
 void UFRGame::CalcGameState()
 {
+	int newHorizontalVelocity = DEFAULT_HORIZONTAL_VELOCITY;
+
 	// Calculate new reptile location.
 	reptileLogic->Tick();
 
-	// If the reptile has stopped moving, reset its velocity and starting location.
-	if (reptileLogic->GetHorizontalVel() == 0 && reptileLogic->GetVerticaltalVel() == 0)
+	// If the reptile has been dead for enough ticks, reset its velocity and starting location.
+	// Else, if it is dead, add to the deadTicks count.
+	if (deadTicks >= REPTILE_RESET_TICKS)
 	{
-		reptileLogic->SetOffsetAndVelocity(INIT_LEFT_OFFSET, INIT_GROUND_OFFSET, DEFAULT_HORIZONTAL_VELOCITY, DEFAULT_VERTICAL_VELOCITY);
+		// Swap reptile flight direction
+		reptileFliesLeft = !reptileFliesLeft;
+		if (reptileFliesLeft)
+		{
+			newHorizontalVelocity = -newHorizontalVelocity;
+		}
+
+		reptileLogic->SetOffsetAndVelocity(0 - scaleRptlWidth, INIT_GROUND_OFFSET, newHorizontalVelocity, DEFAULT_VERTICAL_VELOCITY);
+		reptileLogic->SetReptileState(REPTILE_STATE_FLYING);
+		
+		// Reset dead ticks
+		deadTicks = 0;
+	}
+	else if (reptileLogic->GetHorizontalVel() == 0 && reptileLogic->GetVerticaltalVel() == 0)
+	{
+		deadTicks++;
+	}
+}
+
+
+void UFRGame::Click(int windowX, int windowY, CRect* windowDimensions)
+{
+	// Calculate the mouse click in relation to the image resolution
+	int x = windowX * (imageWidth / (float) windowDimensions->Width());
+	int y = windowY * (imageHeight / (float) windowDimensions->Height());
+
+
+	// If reptile is clicked, change to falling state
+	if (x > reptileLogic->GetLeftOffset() && x < reptileLogic->GetLeftOffset() + scaleRptlWidth &&
+		y > imageHeight - (reptileLogic->GetBottomOffset() + scaleRptlHeight) && y < imageHeight - reptileLogic->GetBottomOffset())
+	{
+		reptileLogic->SetReptileState(REPTILE_STATE_FALLING);
 	}
 }
