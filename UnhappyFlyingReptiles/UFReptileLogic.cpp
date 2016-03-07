@@ -10,10 +10,21 @@ Description:
 
 #define DEFAULT_X_OFFSET 5
 #define DEFAULT_Y_OFFSET 5
-#define DEFAULT_X_VELOCITY 10
-#define DEFAULT_Y_VELOCITY 25
+#define DEFAULT_X_VELOCITY 7
+#define DEFAULT_Y_VELOCITY 10
 #define DEFAULT_FRICTION 1
 #define DEFAULT_GRAVITY 1
+
+#define REPTILE_STATE_FALLING 0
+#define REPTILE_STATE_FLYING 1
+#define REPTILE_STATE_ROLLING 2
+
+#define MAX_TICKS_BETWEEN_FLAPS 6
+#define MIN_TICKS_BETWEEN_FLAPS 3
+#define MAX_FLAP_STRENGTH 8
+#define MIN_FLAP_STRENGTH 4
+#define DEFAULT_MAX_FLIGHT_THRESHOLD 300
+#define DEFAULT_MIN_FLIGHT_THRESHOLD 120
 
 
 /*
@@ -33,6 +44,12 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 	yVelocity = DEFAULT_Y_VELOCITY;
 	friction = DEFAULT_FRICTION;
 	gravity = DEFAULT_GRAVITY;
+	minFlightThreshold = DEFAULT_MIN_FLIGHT_THRESHOLD;
+	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
+	
+	reptileState = REPTILE_STATE_FLYING;
+	srand(NULL);
+	ticksToNextFlap = CalcTicksToNextFlap();
 }
 
 
@@ -46,6 +63,64 @@ Description:
 	after one interval of time.
 */
 void UFReptileLogic::Tick()
+{
+	if (reptileState == REPTILE_STATE_FALLING)
+	{
+		FallTick();
+	}
+	else if (reptileState == REPTILE_STATE_FLYING)
+	{
+		FlyTick();
+	}
+}
+
+
+void UFReptileLogic::FlyTick()
+{
+	// Calculate movement
+	xOffset += xVelocity;
+	yOffset += yVelocity;
+
+
+	// Reptile can't ever be below 0 height
+	if (yOffset < 0)
+	{
+		yOffset = 0;
+	}
+
+	// If Reptile is on the ground, stop the vertical movement and flap wings
+	if (yOffset == 0)
+	{
+		yVelocity = 0;
+
+		// Flap wings and set ticks until next flap
+		FlapWings();
+		ticksToNextFlap = CalcTicksToNextFlap();
+	}
+
+	// If reptile is bellow the min flight threshold, or if it is time for the next flap, and the reptile is below the max
+	// flight threshold, flap.
+	// Else, continue counting down to next flap.
+	if ((ticksToNextFlap <= 0 || yOffset < minFlightThreshold) && yOffset < maxFlightThreshold)
+	{
+		// Flap wings and set ticks until next flap
+		FlapWings();
+		ticksToNextFlap = CalcTicksToNextFlap();
+	}
+	else
+	{
+		ticksToNextFlap--;
+	}
+
+
+	// Apply gravity to vertival velocity if reptile is off the ground
+	if (yOffset != 0)
+	{
+		yVelocity -= gravity;
+	}
+}
+
+void UFReptileLogic::FallTick()
 {
 	// Calculate movement
 	xOffset += xVelocity;
@@ -66,7 +141,7 @@ void UFReptileLogic::Tick()
 		{
 			// If friction would stop the xVelocity, set the xVelocity to 0
 			xVelocity = 0;
-		} 
+		}
 		else if (xVelocity > 0)
 		{
 			// If the xVelocity is positive, subtract the friction from it.
@@ -88,6 +163,15 @@ void UFReptileLogic::Tick()
 
 
 
+void UFReptileLogic::FlapWings()
+{
+	yVelocity += (rand() % (MAX_FLAP_STRENGTH - MIN_FLAP_STRENGTH)) + MIN_FLAP_STRENGTH;
+}
+
+int UFReptileLogic::CalcTicksToNextFlap()
+{
+	return (rand() % (MAX_TICKS_BETWEEN_FLAPS - MIN_TICKS_BETWEEN_FLAPS)) + MIN_TICKS_BETWEEN_FLAPS;
+}
 
 /*
 Name:	SetOffsetAndVelocity()

@@ -14,8 +14,8 @@ Description:
 #define REPTILE_SCALE 0.5
 
 #define INIT_LEFT_OFFSET 0
-#define INIT_GROUND_OFFSET 35
-#define DEFAULT_HORIZONTAL_VELOCITY 10
+#define INIT_GROUND_OFFSET 150
+#define DEFAULT_HORIZONTAL_VELOCITY 7
 #define DEFAULT_VERTICAL_VELOCITY 20
 
 
@@ -147,6 +147,16 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 	int scaleRptlWidth = reptile->GetWidth() * REPTILE_SCALE;
 	int scaleRptlHeight = reptile->GetHeight() * REPTILE_SCALE;
 
+	// If the reptile is out of bounds of the screen, draw it on the other side
+	if (reptileLogic->GetLeftOffset() > dimensions->Width())
+	{
+		reptileLogic->SetLeftOffset(-scaleRptlWidth);
+	}
+	else if (reptileLogic->GetLeftOffset() < -scaleRptlWidth)
+	{
+		reptileLogic->SetLeftOffset(dimensions->Width());
+	}
+
 	// Draw Backdrop to buffer
 	bufferCanvas->DrawImage(background, 0, 0);
 	bufferCanvas->DrawImage(midground, 0, 0);
@@ -179,7 +189,7 @@ void UFRGame::CalcGameState()
 	// Calculate new reptile location.
 	reptileLogic->Tick();
 
-	// If the reptile has stopped moving, reset itsvelocity and starting location.
+	// If the reptile has stopped moving, reset its velocity and starting location.
 	if (reptileLogic->GetHorizontalVel() == 0 && reptileLogic->GetVerticaltalVel() == 0)
 	{
 		reptileLogic->SetOffsetAndVelocity(INIT_LEFT_OFFSET, INIT_GROUND_OFFSET, DEFAULT_HORIZONTAL_VELOCITY, DEFAULT_VERTICAL_VELOCITY);

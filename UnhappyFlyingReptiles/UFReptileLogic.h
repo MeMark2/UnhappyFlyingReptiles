@@ -10,6 +10,7 @@ Description:
 #pragma once
 
 #include <stdlib.h>
+#include <time.h>
 
 
 /*
@@ -29,11 +30,25 @@ private:
 	unsigned int friction; // The rate at which the x velocity tends towards 0.
 	unsigned int gravity; // The rate at which the y velocity decreases until the y offset is 0.
 
+	unsigned int minFlightThreshold;
+	unsigned int maxFlightThreshold;
+
+	int reptileState; 
+
+	void FlyTick();
+	void FallTick();
+
+	void FlapWings();
+	static int CalcTicksToNextFlap();
+	int ticksToNextFlap;
+
 public:
 	UFReptileLogic(int leftOffset, int bottomOffset);
 
 	int GetLeftOffset() { return xOffset; }
+	void SetLeftOffset(int offset) { xOffset = offset; }
 	int GetBottomOffset() { return yOffset; }
+	void SetBottomOffset(unsigned int offset) { yOffset = offset; }
 
 	int GetHorizontalVel() { return xVelocity; }
 	int GetVerticaltalVel() { return yVelocity; }
