@@ -10,6 +10,7 @@ Description:
 #include "afxwin.h"
 #include <gdiplus.h>
 #include "UFReptileLogic.h"
+#include <fmod.hpp>
 
 using namespace Gdiplus;
 
@@ -38,8 +39,16 @@ private:
 	Bitmap* buffer;
 	Graphics* bufferCanvas;
 
+	FMOD::System *fmodSystem;
+	FMOD::Sound *shootSound;
+	FMOD::Sound *punchSound;
+	FMOD::Sound *fallSound;
+	FMOD::Sound *thudSound;
+
 	UFReptileLogic* reptileLogic;
 	int deadTicks; // To keep track of how long the reptile has been dead
+	bool floorHit; // To keep track of when the reptile first hits the ground
+
 	int scaleRptlWidth;
 	int scaleRptlHeight;
 

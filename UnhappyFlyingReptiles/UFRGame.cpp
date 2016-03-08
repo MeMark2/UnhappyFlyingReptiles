@@ -20,6 +20,7 @@ Description:
 
 #define REPTILE_RESET_TICKS 15
 
+#define SOUND_CHANNELS 16
 
 
 /*
@@ -32,18 +33,29 @@ Description:
 */
 UFRGame::UFRGame()
 {
+	// load game images
 	background = new Bitmap(TEXT(".\\Background.bmp"));
 	midground = new Bitmap(TEXT(".\\Midground.bmp"));
 	foreground = new Bitmap(TEXT(".\\Foreground.bmp"));
-
 	slingshot1 = new Bitmap(TEXT(".\\slingshot1.png"));
 	slingshot2 = new Bitmap(TEXT(".\\slingshot2.png"));
-
 	reptile = new Bitmap(TEXT(".\\reptile.png"));
 
+	// Create and init fmod system
+	FMOD::System_Create(&fmodSystem);
+	fmodSystem->init(SOUND_CHANNELS, FMOD_INIT_NORMAL, NULL);
+
+	// Init game sounds
+	fmodSystem->createSound("shoot.wav", FMOD_HARDWARE, 0, &shootSound);
+	fmodSystem->createSound("punch.wav", FMOD_HARDWARE, 0, &punchSound);
+	fmodSystem->createSound("falling.wav", FMOD_HARDWARE, 0, &fallSound);
+	fmodSystem->createSound("thud.wav", FMOD_HARDWARE, 0, &thudSound);
+
+	// Create image buffer
 	buffer = background->Clone(0, 0, background->GetWidth(), background->GetHeight(), PixelFormat32bppARGB);
 	bufferCanvas = Graphics::FromImage(buffer);
 
+	// Remove green from background and midground images
 	MakeTransparent(midground, Color(0, 255, 0));
 	MakeTransparent(foreground, Color(0, 255, 0));
 
@@ -58,6 +70,7 @@ UFRGame::UFRGame()
 	// Start the reptile off the screen
 	reptileLogic = new UFReptileLogic(0 - scaleRptlWidth, INIT_GROUND_OFFSET, DEFAULT_HORIZONTAL_VELOCITY, DEFAULT_VERTICAL_VELOCITY);
 	deadTicks = 0; 
+	floorHit = false;
 	reptileFliesLeft = false;
 }
 
@@ -86,6 +99,16 @@ UFRGame::~UFRGame()
 	delete bufferCanvas;
 
 	delete reptileLogic;
+
+	// release game sounds
+	shootSound->release();
+	punchSound->release();
+	fallSound->release();
+	thudSound->release();
+
+	// close and release fmod
+	fmodSystem->close();
+	fmodSystem->release();
 }
 
 
@@ -205,6 +228,13 @@ void UFRGame::CalcGameState()
 	// Calculate new reptile location.
 	reptileLogic->Tick();
 
+	// Play a thud sound when the reptile first hits the ground
+	if (deadTicks == 0 && reptileLogic->GetVerticaltalVel() == 0 && reptileLogic->GetBottomOffset() == 0 && !floorHit)
+	{
+		fmodSystem->playSound(FMOD_CHANNEL_FREE, thudSound, false, 0);
+		floorHit = true;
+	}
+
 	// If the reptile has been dead for enough ticks, reset its velocity and starting location.
 	// Else, if it is dead, add to the deadTicks count.
 	if (deadTicks >= REPTILE_RESET_TICKS)
@@ -219,8 +249,9 @@ void UFRGame::CalcGameState()
 		reptileLogic->SetOffsetAndVelocity(0 - scaleRptlWidth, INIT_GROUND_OFFSET, newHorizontalVelocity, DEFAULT_VERTICAL_VELOCITY);
 		reptileLogic->SetReptileState(REPTILE_STATE_FLYING);
 		
-		// Reset dead ticks
+		// Reset dead ticks and floor hit
 		deadTicks = 0;
+		floorHit = false;
 	}
 	else if (reptileLogic->GetHorizontalVel() == 0 && reptileLogic->GetVerticaltalVel() == 0)
 	{
@@ -229,17 +260,35 @@ void UFRGame::CalcGameState()
 }
 
 
+
+/*
+Name:	Click()
+Params: 
+int windowX - The x coordinate of the mouse click based on the window size.
+int windowY - The y coordinate of the mouse click based on the window size.
+CRect* windowDimensions - The dimensions of the window.
+Return: void
+Description:
+	This method executes game logic that heppens at the click of the mouse.
+	Sounds play and the reptile is checked for clicks.
+*/
 void UFRGame::Click(int windowX, int windowY, CRect* windowDimensions)
 {
 	// Calculate the mouse click in relation to the image resolution
 	int x = windowX * (imageWidth / (float) windowDimensions->Width());
 	int y = windowY * (imageHeight / (float) windowDimensions->Height());
 
+	fmodSystem->playSound(FMOD_CHANNEL_FREE, shootSound, false, 0);
 
 	// If reptile is clicked, change to falling state
 	if (x > reptileLogic->GetLeftOffset() && x < reptileLogic->GetLeftOffset() + scaleRptlWidth &&
 		y > imageHeight - (reptileLogic->GetBottomOffset() + scaleRptlHeight) && y < imageHeight - reptileLogic->GetBottomOffset())
 	{
 		reptileLogic->SetReptileState(REPTILE_STATE_FALLING);
+		fmodSystem->playSound(FMOD_CHANNEL_FREE, punchSound, false, 0);
+		fmodSystem->playSound(FMOD_CHANNEL_FREE, fallSound, false, 0);
 	}
+
+	// FMOD maintanence
+	fmodSystem->update();
 }
