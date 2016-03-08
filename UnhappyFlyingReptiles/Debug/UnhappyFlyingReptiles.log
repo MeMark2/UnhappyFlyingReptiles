@@ -1,27 +1,9 @@
-﻿Build started 2016-03-07 9:08:47 PM.
+﻿Build started 2016-03-07 10:34:30 PM.
      1>Project "C:\Users\Mark\Desktop\Desktop\School\GAS\A1\UnhappyFlyingReptiles\UnhappyFlyingReptiles\UnhappyFlyingReptiles.vcxproj" on node 2 (Build target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt UFRGame.cpp
-         UFRGame.cpp
-         _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(67): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(68): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(175): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(176): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(198): warning C4244: 'argument' : conversion from 'int' to 'Gdiplus::REAL', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(199): warning C4244: 'argument' : conversion from 'int' to 'Gdiplus::REAL', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(200): warning C4244: 'argument' : conversion from 'int' to 'Gdiplus::REAL', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(278): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\mark\desktop\desktop\school\gas\a1\unhappyflyingreptiles\unhappyflyingreptiles\ufrgame.cpp(279): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Mark\Desktop\Desktop\School\GAS\A1\UnhappyFlyingReptiles\Debug\UnhappyFlyingReptiles.exe" /INCREMENTAL:NO /NOLOGO gdiplus.lib FMOD\fmodex_vc.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"C:\Users\Mark\Desktop\Desktop\School\GAS\A1\UnhappyFlyingReptiles\Debug\UnhappyFlyingReptiles.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Mark\Desktop\Desktop\School\GAS\A1\UnhappyFlyingReptiles\Debug\UnhappyFlyingReptiles.lib" /MACHINE:X86 Debug\UFRApp.obj
-         Debug\UFReptileLogic.obj
-         Debug\UFRGame.obj
-         Debug\UFRMainWindow.obj
-     1>UFRApp.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
+     1>Link:
          UnhappyFlyingReptiles.vcxproj -> C:\Users\Mark\Desktop\Desktop\School\GAS\A1\UnhappyFlyingReptiles\Debug\UnhappyFlyingReptiles.exe
      1>Done Building Project "C:\Users\Mark\Desktop\Desktop\School\GAS\A1\UnhappyFlyingReptiles\UnhappyFlyingReptiles\UnhappyFlyingReptiles.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:02.34
+Time Elapsed 00:00:00.07

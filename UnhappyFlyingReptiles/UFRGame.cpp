@@ -195,9 +195,11 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 
 	// Set up tranformations for reptile:
 	// center, rotate, and return to original offset
-	bufferCanvas->TranslateTransform(-(reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), -(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2) );
+	bufferCanvas->TranslateTransform(-(reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), 
+		-(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2) );
 	bufferCanvas->RotateTransform(reptileLogic->GetReptileRotation(), MatrixOrderAppend);
-	bufferCanvas->TranslateTransform((reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), (imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2), MatrixOrderAppend);
+	bufferCanvas->TranslateTransform((reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), 
+		(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2), MatrixOrderAppend);
 
 	// Draw reptile with transformations
 	bufferCanvas->DrawImage(reptile, reptileLogic->GetLeftOffset(), imageHeight - scaleRptlHeight - reptileLogic->GetBottomOffset(),

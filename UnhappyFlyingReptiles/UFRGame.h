@@ -10,7 +10,7 @@ Description:
 #include "afxwin.h"
 #include <gdiplus.h>
 #include "UFReptileLogic.h"
-#include <fmod.hpp>
+#include "FMOD\inc\fmod.hpp"
 
 using namespace Gdiplus;
 
