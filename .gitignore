@@ -1,0 +1,24 @@
+# Visual Studio files
+Debug/UnhappyFlyingReptiles.exe
+Debug/UnhappyFlyingReptiles.pdb
+Debug/fmodex.dll
+
+UnhappyFlyingReptiles.opensdf
+UnhappyFlyingReptiles.sdf
+
+UnhappyFlyingReptiles/Debug/appMain.obj
+UnhappyFlyingReptiles/Debug/UFRApp.obj
+UnhappyFlyingReptiles/Debug/UFReptileLogic.obj
+UnhappyFlyingReptiles/Debug/UFRGame.obj
+UnhappyFlyingReptiles/Debug/UFRMainWindow.obj
+UnhappyFlyingReptiles/Debug/UnhappyFlyingReptiles.log
+
+UnhappyFlyingReptiles/Debug/vc120.idb
+UnhappyFlyingReptiles/Debug/vc120.pdb
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/CL.read.1.tlog
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/CL.write.1.tlog
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/UnhappyFlyingReptiles.lastbuildstate
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/cl.command.1.tlog
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/link.command.1.tlog
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/link.read.1.tlog
+UnhappyFlyingReptiles/Debug/UnhappyF.206BADE6.tlog/link.write.1.tlog
