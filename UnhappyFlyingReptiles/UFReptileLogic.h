@@ -50,6 +50,8 @@ private:
 	void RotateClockwise(int degrees);
 	void RotateCounterClockwise(int degrees);
 
+	static int CalcTicksToNextXVel();
+	int ticksToNextXVel;
 public:
 	UFReptileLogic(int leftOffset, int bottomOffset);
 	UFReptileLogic(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity);
@@ -70,5 +72,7 @@ public:
 	void Tick();
 
 	void SetOffsetAndVelocity(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity);
+	
+	void SetRandHorVel();
 };
 

@@ -15,10 +15,14 @@ Description:
 #define DEFAULT_FRICTION 1
 #define DEFAULT_GRAVITY 1
 
-#define MAX_TICKS_BETWEEN_FLAPS 6
-#define MIN_TICKS_BETWEEN_FLAPS 3
-#define MAX_FLAP_STRENGTH 8
-#define MIN_FLAP_STRENGTH 4
+#define MAX_TICKS_BETWEEN_FLAPS 10
+#define MIN_TICKS_BETWEEN_FLAPS 5
+#define MAX_FLAP_STRENGTH 12
+#define MIN_FLAP_STRENGTH 6
+#define MAX_TICKS_BETWEEN_XVEL 20
+#define MIN_TICKS_BETWEEN_XVEL 10
+#define MAX_RAND_X_SPEED 16
+#define MIN_RAND_X_SPEED 8
 #define DEFAULT_MAX_FLIGHT_THRESHOLD 300
 #define DEFAULT_MIN_FLIGHT_THRESHOLD 120
 
@@ -46,8 +50,9 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
 	
 	reptileState = REPTILE_STATE_FLYING;
-	srand(NULL);
+	srand(time(NULL));
 	ticksToNextFlap = CalcTicksToNextFlap();
+	ticksToNextXVel = CalcTicksToNextXVel();
 
 	reptileRotation = 0;
 }
@@ -75,8 +80,9 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalV
 	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
 
 	reptileState = REPTILE_STATE_FLYING;
-	srand(NULL);
+	srand(time(NULL));
 	ticksToNextFlap = CalcTicksToNextFlap();
+	ticksToNextXVel = CalcTicksToNextXVel();
 
 	reptileRotation = 0;
 }
@@ -159,6 +165,17 @@ void UFReptileLogic::FlyTick()
 		ticksToNextFlap--;
 	}
 
+	// If it's time to change xVelocity, change it.
+	// Else, continue counting down to next xVelocity change.
+	if (ticksToNextXVel <= 0)
+	{
+		SetRandHorVel();
+		ticksToNextXVel = CalcTicksToNextXVel();
+	}
+	else
+	{
+		ticksToNextXVel--;
+	}
 
 	// Apply gravity to vertival velocity if reptile is off the ground
 	if (yOffset != 0)
@@ -299,4 +316,42 @@ The degrees passed in represent the number of degrees that the reptile rotates c
 void UFReptileLogic::RotateCounterClockwise(int degrees)
 {
 	RotateClockwise(-degrees);
+}
+
+
+
+/*
+Name:	CalcTicksToNextXVel()
+Params: None
+Return: void
+Description:
+
+*/
+int UFReptileLogic::CalcTicksToNextXVel()
+{
+	return (rand() % (MAX_TICKS_BETWEEN_XVEL - MIN_TICKS_BETWEEN_XVEL)) + MIN_TICKS_BETWEEN_XVEL;
+}
+
+
+
+/*
+Name:	SetRandHorVel()
+Params: None
+Return: void
+Description:
+
+*/
+void UFReptileLogic::SetRandHorVel()
+{
+	// Get random value between -NumberOfAllowedSpeeds and (NumberOfAllowedSpeeds - 1)
+	int velBuff = (rand() % ((MAX_RAND_X_SPEED - MIN_RAND_X_SPEED) * 2)) - MIN_RAND_X_SPEED;
+
+	if (velBuff >= 0)
+	{
+		xVelocity = velBuff + MIN_RAND_X_SPEED;
+	}
+	else
+	{
+		xVelocity = velBuff - (MIN_RAND_X_SPEED - 1);
+	}
 }
