@@ -72,6 +72,10 @@ UFRGame::UFRGame()
 	deadTicks = 0; 
 	floorHit = false;
 	reptileFliesLeft = false;
+
+	// Initiate mouse position
+	mouseX = 0;
+	mouseY = 0;
 }
 
 
@@ -171,6 +175,10 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 	int windowWidth = dimensions->Width();
 	int windowHeight = dimensions->Height();
 
+	// Calc scaled mouse position
+	int scaledMouseX = (mouseX / (float)windowWidth) * imageWidth;
+	int scaledMouseY = (mouseY / (float)windowHeight) * imageHeight;
+
 	// Calculate the scaled size of the slingshot
 	int scaleSlngWidth = slingshot1->GetWidth() * SLINGSHOT_SCALE;
 	int scaleSlngHeight = slingshot1->GetHeight() * SLINGSHOT_SCALE;
@@ -190,9 +198,6 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 	bufferCanvas->DrawImage(midground, 0, 0);
 	bufferCanvas->DrawImage(foreground, 0, 0);
 
-	// Draw further part of slingshot to buffer
-	bufferCanvas->DrawImage(slingshot1, 0, imageHeight - scaleSlngHeight, scaleSlngWidth, scaleSlngHeight);
-
 	// Set up tranformations for reptile:
 	// center, rotate, and return to original offset
 	bufferCanvas->TranslateTransform(-(reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), 
@@ -202,14 +207,19 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 		(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2), MatrixOrderAppend);
 
 	// Draw reptile with transformations
-	bufferCanvas->DrawImage(reptile, reptileLogic->GetLeftOffset(), imageHeight - scaleRptlHeight - reptileLogic->GetBottomOffset(),
+	bufferCanvas->DrawImage(reptile, reptileLogic->GetLeftOffset(), 
+		imageHeight - scaleRptlHeight - reptileLogic->GetBottomOffset(),
 		scaleRptlWidth, scaleRptlHeight);
 
 	// Clear transformations
 	bufferCanvas->ResetTransform();
 
-	// Draw closer part of slingshot to buffer
-	bufferCanvas->DrawImage(slingshot2, 0, imageHeight - scaleSlngHeight, scaleSlngWidth, scaleSlngHeight);
+	// Draw slingshot to buffer at mouse postition 
+	// (the center of the slingshot firing area is adjusted to the mouse position)
+	bufferCanvas->DrawImage(slingshot1, scaledMouseX - (scaleSlngWidth / 2), 
+		scaledMouseY - 15, scaleSlngWidth, scaleSlngHeight);
+	bufferCanvas->DrawImage(slingshot2, scaledMouseX - (scaleSlngWidth / 2), 
+		scaledMouseY - 15, scaleSlngWidth, scaleSlngHeight);
 
 	// Draw buffer to canvas
 	canvas->DrawImage(buffer, 0, 0, windowWidth, windowHeight);

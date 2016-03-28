@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(UFRMainWindow, CFrameWnd)
 	ON_WM_TIMER()
 	ON_WM_CLOSE()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -156,4 +157,14 @@ void UFRMainWindow::OnLButtonDown(UINT nFlags, CPoint point)
 	gameLogic->Click(point.x, point.y, &windowDimensions);
 
 	CFrameWnd::OnLButtonDown(nFlags, point);
+}
+
+
+void UFRMainWindow::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// Update Mouse position
+	gameLogic->mouseX = point.x;
+	gameLogic->mouseY = point.y;
+	
+	CFrameWnd::OnMouseMove(nFlags, point);
 }

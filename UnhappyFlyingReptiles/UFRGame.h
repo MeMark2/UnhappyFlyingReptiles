@@ -60,6 +60,9 @@ public:
 	UFRGame();
 	~UFRGame();
 
+	int mouseX;
+	int mouseY;
+
 	void Draw(Graphics* canvas, CRect* dimensions);
 	void CalcGameState();
 
