@@ -142,6 +142,15 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalV
 	buffer = selectedSprite->GetHeight();
 }
 
+
+
+/*
+Name:	~UFReptileLogic()
+Params: None
+Description:
+The destructor for the UFReptileLogic class.
+Reptile sprites are deallocated here.
+*/
 UFReptileLogic::~UFReptileLogic()
 {
 	// Deallocate reptile sprites
@@ -151,6 +160,7 @@ UFReptileLogic::~UFReptileLogic()
 	}
 	delete deadSprite;
 }
+
 
 
 /*
@@ -176,6 +186,14 @@ void UFReptileLogic::Tick()
 }
 
 
+
+/*
+Name:	SetReptileState()
+Params:
+int stateCode - The value representing the state to set the reptile to.
+Description:
+This method sets the state of the reptile.
+*/
 void UFReptileLogic::SetReptileState(int stateCode)
 {
 	switch (stateCode)
@@ -194,6 +212,12 @@ void UFReptileLogic::SetReptileState(int stateCode)
 
 
 
+/*
+Name:	FlyTick()
+Params: None
+Description:
+This method updates the information of the reptile when it is in flight.
+*/
 void UFReptileLogic::FlyTick()
 {
 	// Calculate movement
@@ -281,6 +305,14 @@ void UFReptileLogic::FlyTick()
 	}
 }
 
+
+
+/*
+Name:	FallTick()
+Params: None
+Description:
+This method updates the information of the reptile when it is falling.
+*/
 void UFReptileLogic::FallTick()
 {
 	// Calculate movement
@@ -439,7 +471,7 @@ Name:	CalcTicksToNextXVel()
 Params: None
 Return: void
 Description:
-
+This method selects a random number of ticks that must pass before the reptile changes its own x velocity.
 */
 int UFReptileLogic::CalcTicksToNextXVel()
 {
@@ -453,13 +485,14 @@ Name:	SetRandHorVel()
 Params: None
 Return: void
 Description:
-
+This method selects a random velocity for the reptile based on a minimum and maximum horizontal speed.
 */
 void UFReptileLogic::SetRandHorVel()
 {
 	// Get random value between -NumberOfAllowedSpeeds and (NumberOfAllowedSpeeds - 1)
 	int velBuff = (rand() % ((MAX_RAND_X_SPEED - MIN_RAND_X_SPEED) * 2)) - MIN_RAND_X_SPEED;
 
+	// Adjust based on going left or right
 	if (velBuff >= 0)
 	{
 		xVelocity = velBuff + MIN_RAND_X_SPEED;
