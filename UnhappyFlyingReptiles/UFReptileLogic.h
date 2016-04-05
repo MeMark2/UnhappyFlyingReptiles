@@ -10,11 +10,17 @@ Description:
 #pragma once
 
 #include <stdlib.h>
+#include "afxwin.h"
 #include <time.h>
+#include <vector>
+#include <gdiplus.h>
+
+using namespace Gdiplus;
 
 #define REPTILE_STATE_FALLING 0
 #define REPTILE_STATE_FLYING 1
 
+#define REPTILE_FLYING_SPRITE_COUNT 8
 
 /*
 Name: UFReptileLogic
@@ -52,9 +58,20 @@ private:
 
 	static int CalcTicksToNextXVel();
 	int ticksToNextXVel;
+
+	std::vector<Bitmap*> flyingSprites;
+	Bitmap* deadSprite;
+
+	int flyingSpriteIndex;
+	Bitmap* selectedSprite;
+
+	bool flyingLeft;
+	bool wasFlying;
+
 public:
 	UFReptileLogic(int leftOffset, int bottomOffset);
 	UFReptileLogic(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity);
+	~UFReptileLogic();
 
 	int GetLeftOffset() { return xOffset; }
 	void SetLeftOffset(int offset) { xOffset = offset; }
@@ -74,5 +91,9 @@ public:
 	void SetOffsetAndVelocity(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity);
 	
 	void SetRandHorVel();
+
+	Bitmap* GetSprite() { return selectedSprite; }
+	int GetSpriteHeight() { return selectedSprite->GetHeight(); }
+	int GetSpriteWidth() { return selectedSprite->GetWidth(); }
 };
 

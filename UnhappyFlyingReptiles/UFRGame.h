@@ -34,8 +34,6 @@ private:
 	Bitmap* slingshot1;
 	Bitmap* slingshot2;
 
-	Bitmap* reptile;
-
 	Bitmap* buffer;
 	Graphics* bufferCanvas;
 

@@ -49,14 +49,52 @@
     <Image Include="Midground.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="reptile.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="slingshot1.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="slingshot2.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="ReptileSprites\RD.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF4.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF5.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF6.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ReptileSprites\RF7.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="falling.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="punch.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="shoot.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="thud.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
   </ItemGroup>
 </Project>

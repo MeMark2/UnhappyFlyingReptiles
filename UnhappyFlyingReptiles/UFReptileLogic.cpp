@@ -29,6 +29,11 @@ Description:
 #define ROTATION_DEGREES 360
 #define DEATH_SPIN_DEGREES 5
 
+#define SPRITES_FILEPATH TEXT("ReptileSprites\\")
+#define REPTILE_SPRITE_EXT TEXT(".png")
+#define REPTILE_DEAD_SPRITE_PREFIX TEXT("RD")
+#define REPTILE_FLYING_SPRITE_PREFIX TEXT("RF")
+
 /*
 Name:	UFReptileLogic()
 Params:
@@ -40,6 +45,8 @@ Description:
 */
 UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 {
+	wchar_t buff[256] = { '\0' };
+
 	xOffset = leftOffset;
 	yOffset = bottomOffset;
 	xVelocity = DEFAULT_X_VELOCITY;
@@ -50,11 +57,33 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
 	
 	reptileState = REPTILE_STATE_FLYING;
+	wasFlying = true;
 	srand(time(NULL));
 	ticksToNextFlap = CalcTicksToNextFlap();
 	ticksToNextXVel = CalcTicksToNextXVel();
 
 	reptileRotation = 0;
+	if (xVelocity >= 0)
+	{
+		flyingLeft = false;
+	}
+	else
+	{
+		flyingLeft = true;
+	}
+
+	// Load reptile sprites
+	for (int sprite = 0; sprite < REPTILE_FLYING_SPRITE_COUNT; sprite++)
+	{
+		swprintf(buff, TEXT("%s%s%d%s"), SPRITES_FILEPATH, REPTILE_FLYING_SPRITE_PREFIX, sprite, REPTILE_SPRITE_EXT);
+		flyingSprites.push_back(new Bitmap(buff));
+	}
+	swprintf(buff, TEXT("%s%s%s"), SPRITES_FILEPATH, REPTILE_DEAD_SPRITE_PREFIX, REPTILE_SPRITE_EXT);
+	deadSprite = new Bitmap(buff);
+
+	// Set selected sprite
+	flyingSpriteIndex = 0;
+	selectedSprite = flyingSprites[flyingSpriteIndex];
 }
 
 /*
@@ -70,6 +99,9 @@ The base movement information is set here.
 */
 UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalVelocity, int verticalVelocity)
 {
+	wchar_t buff[256] = { '\0' };
+	int buffer = 0;
+
 	xOffset = leftOffset;
 	yOffset = bottomOffset;
 	xVelocity = horizontalVelocity;
@@ -80,13 +112,45 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalV
 	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
 
 	reptileState = REPTILE_STATE_FLYING;
+	wasFlying = true;
 	srand(time(NULL));
 	ticksToNextFlap = CalcTicksToNextFlap();
 	ticksToNextXVel = CalcTicksToNextXVel();
 
 	reptileRotation = 0;
+	if (xVelocity >= 0)
+	{
+		flyingLeft = false;
+	}
+	else
+	{
+		flyingLeft = true;
+	}
+
+	// Load reptile sprites
+	for (int sprite = 0; sprite < REPTILE_FLYING_SPRITE_COUNT; sprite++)
+	{
+		swprintf(buff, TEXT("%s%s%d%s"), SPRITES_FILEPATH, REPTILE_FLYING_SPRITE_PREFIX, sprite, REPTILE_SPRITE_EXT);
+		flyingSprites.push_back(new Bitmap(buff));
+	}
+	swprintf(buff, TEXT("%s%s%s"), SPRITES_FILEPATH, REPTILE_DEAD_SPRITE_PREFIX, REPTILE_SPRITE_EXT);
+	deadSprite = new Bitmap(buff);
+
+	// Set selected sprite
+	flyingSpriteIndex = 0;
+	selectedSprite = flyingSprites[flyingSpriteIndex];
+	buffer = selectedSprite->GetHeight();
 }
 
+UFReptileLogic::~UFReptileLogic()
+{
+	// Deallocate reptile sprites
+	for (int sprite = 0; sprite < flyingSprites.size(); sprite++)
+	{
+		delete flyingSprites[sprite];
+	}
+	delete deadSprite;
+}
 
 
 /*
@@ -102,10 +166,12 @@ void UFReptileLogic::Tick()
 	if (reptileState == REPTILE_STATE_FALLING)
 	{
 		FallTick();
+		wasFlying = false;
 	}
 	else if (reptileState == REPTILE_STATE_FLYING)
 	{
 		FlyTick();
+		wasFlying = true;
 	}
 }
 
@@ -133,7 +199,6 @@ void UFReptileLogic::FlyTick()
 	// Calculate movement
 	xOffset += xVelocity;
 	yOffset += yVelocity;
-
 
 	// Reptile can't ever be below 0 height
 	if (yOffset < 0)
@@ -181,6 +246,38 @@ void UFReptileLogic::FlyTick()
 	if (yOffset != 0)
 	{
 		yVelocity -= gravity;
+	}
+
+	// Update sprite to select
+	flyingSpriteIndex++;
+	if (flyingSpriteIndex == flyingSprites.size())
+	{
+		flyingSpriteIndex = 0;
+	}
+
+	// Revert flipped sprite if it was flying left previously
+	if (flyingLeft)
+	{
+		selectedSprite->RotateFlip(RotateNoneFlipX);
+	}
+
+	// Select new sprite
+	selectedSprite = flyingSprites[flyingSpriteIndex];
+
+	// Update flight direction
+	if (xVelocity >= 0)
+	{
+		flyingLeft = false;
+	}
+	else
+	{
+		flyingLeft = true;
+	}
+
+	// Flip sprite if its flying left this time
+	if (flyingLeft)
+	{
+		selectedSprite->RotateFlip(RotateNoneFlipX);
 	}
 }
 
@@ -232,6 +329,23 @@ void UFReptileLogic::FallTick()
 	if (yOffset != 0)
 	{
 		yVelocity -= gravity;
+	}
+
+	// If the reptile was flying left just before this,
+	if (wasFlying && flyingLeft)
+	{
+		// Reset the flip of the previous image
+		selectedSprite->RotateFlip(RotateNoneFlipX);
+	}
+
+	// Set dead sprite
+	selectedSprite = deadSprite;
+
+	// If the reptile was flying left just before this,
+	if (wasFlying && flyingLeft)
+	{
+		// Set the falling sprite to face left
+		selectedSprite->RotateFlip(RotateNoneFlipX);
 	}
 }
 

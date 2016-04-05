@@ -11,7 +11,7 @@ Description:
 
 #define BYTES_PER_PIXEL 4
 #define SLINGSHOT_SCALE 0.7
-#define REPTILE_SCALE 0.7
+#define REPTILE_SCALE 0.1
 
 #define INIT_LEFT_OFFSET 0
 #define INIT_GROUND_OFFSET 300
@@ -39,7 +39,6 @@ UFRGame::UFRGame()
 	foreground = new Bitmap(TEXT(".\\Foreground.bmp"));
 	slingshot1 = new Bitmap(TEXT(".\\slingshot1.png"));
 	slingshot2 = new Bitmap(TEXT(".\\slingshot2.png"));
-	reptile = new Bitmap(TEXT(".\\reptile.png"));
 
 	// Create and init fmod system
 	FMOD::System_Create(&fmodSystem);
@@ -63,15 +62,15 @@ UFRGame::UFRGame()
 	imageWidth = background->GetWidth();
 	imageHeight = background->GetHeight();
 
-	// Calculate the scaled size of the reptile
-	scaleRptlWidth = reptile->GetWidth() * REPTILE_SCALE;
-	scaleRptlHeight = reptile->GetHeight() * REPTILE_SCALE;
-
 	// Start the reptile off the screen
-	reptileLogic = new UFReptileLogic(0 - scaleRptlWidth, INIT_GROUND_OFFSET, DEFAULT_HORIZONTAL_VELOCITY, DEFAULT_VERTICAL_VELOCITY);
+	reptileLogic = new UFReptileLogic(0, INIT_GROUND_OFFSET, DEFAULT_HORIZONTAL_VELOCITY, DEFAULT_VERTICAL_VELOCITY);
 	deadTicks = 0; 
 	floorHit = false;
 	reptileFliesLeft = false;
+
+	// Calculate the scaled size of the reptile
+	scaleRptlWidth = reptileLogic->GetSpriteWidth() * REPTILE_SCALE;
+	scaleRptlHeight = reptileLogic->GetSpriteHeight() * REPTILE_SCALE;
 
 	// Initiate mouse position
 	mouseX = 0;
@@ -96,8 +95,6 @@ UFRGame::~UFRGame()
 
 	delete slingshot1;
 	delete slingshot2;
-
-	delete reptile;
 
 	delete buffer;
 	delete bufferCanvas;
@@ -207,7 +204,7 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 		(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2), MatrixOrderAppend);
 
 	// Draw reptile with transformations
-	bufferCanvas->DrawImage(reptile, reptileLogic->GetLeftOffset(), 
+	bufferCanvas->DrawImage(reptileLogic->GetSprite() , reptileLogic->GetLeftOffset(),
 		imageHeight - scaleRptlHeight - reptileLogic->GetBottomOffset(),
 		scaleRptlWidth, scaleRptlHeight);
 

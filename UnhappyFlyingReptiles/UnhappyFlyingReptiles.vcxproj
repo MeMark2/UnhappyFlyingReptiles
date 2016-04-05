@@ -93,9 +93,23 @@
     <Image Include="Background.bmp" />
     <Image Include="Foreground.bmp" />
     <Image Include="Midground.bmp" />
-    <Image Include="reptile.png" />
+    <Image Include="ReptileSprites\RD.png" />
+    <Image Include="ReptileSprites\RF0.png" />
+    <Image Include="ReptileSprites\RF1.png" />
+    <Image Include="ReptileSprites\RF2.png" />
+    <Image Include="ReptileSprites\RF3.png" />
+    <Image Include="ReptileSprites\RF4.png" />
+    <Image Include="ReptileSprites\RF5.png" />
+    <Image Include="ReptileSprites\RF6.png" />
+    <Image Include="ReptileSprites\RF7.png" />
     <Image Include="slingshot1.png" />
     <Image Include="slingshot2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="falling.wav" />
+    <Media Include="punch.wav" />
+    <Media Include="shoot.wav" />
+    <Media Include="thud.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
