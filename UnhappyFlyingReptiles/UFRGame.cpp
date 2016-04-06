@@ -72,15 +72,21 @@ UFRGame::UFRGame()
 	reptileFliesLeft = false;
 
 	// Create the crates
-	crates.push_back(new Crate(200, 50));
-	crates.push_back(new Crate(240, 50));
-	crates.push_back(new Crate(280, 50));
-	crates.push_back(new Crate(320, 50));
-	crates.push_back(new Crate(220, 100));
-	crates.push_back(new Crate(260, 100));
-	crates.push_back(new Crate(300, 100));
-	crates.push_back(new Crate(240, 150));
-	crates.push_back(new Crate(280, 150));
+	crates.push_back(new Crate(100, 20, 15, 0.5, 0.5));
+	crates.push_back(new Crate(85, 100));
+	crates.push_back(new Crate(135, 100));
+	crates.push_back(new Crate(80, 180, 2, 0.5, 0.3));
+	crates.push_back(new Crate(110, 180, 2, 0.5, 0.3));
+	crates.push_back(new Crate(140, 180, 2, 0.5, 0.3));
+	crates.push_back(new Crate(170, 180, 2, 0.5, 0.3));
+
+	crates.push_back(new Crate(500, 20, 15, 0.5, 0.5));
+	crates.push_back(new Crate(485, 100));
+	crates.push_back(new Crate(535, 100));
+	crates.push_back(new Crate(480, 180, 2, 0.5, 0.3));
+	crates.push_back(new Crate(510, 180, 2, 0.5, 0.3));
+	crates.push_back(new Crate(540, 180, 2, 0.5, 0.3));
+	crates.push_back(new Crate(570, 180, 2, 0.5, 0.3));
 
 	// Initiate mouse position
 	mouseX = 0;

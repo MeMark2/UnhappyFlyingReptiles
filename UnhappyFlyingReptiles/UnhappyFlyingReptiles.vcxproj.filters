@@ -91,7 +91,10 @@
     <Image Include="Crates\Crate.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Crates\TNTCrate.png">
+    <Image Include="Crates\HeavyCrate.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Crates\LightCrate.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

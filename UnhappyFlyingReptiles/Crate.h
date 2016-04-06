@@ -18,6 +18,10 @@ private:
 	unsigned int friction; // The rate at which the x velocity tends towards 0.
 	unsigned int gravity; // The rate at which the y velocity decreases until the y offset is 0.
 
+	int crateWeight;
+	float crateForceGiven;
+	float crateScale;
+
 	int scaledHeight;
 	int scaledWidth;
 
@@ -25,6 +29,7 @@ private:
 
 public:
 	Crate(int leftOffset, int bottomOffset);
+	Crate(int leftOffset, int bottomOffset, unsigned int weight, float forceGiven, float scale);
 	~Crate();
 
 	int GetLeftOffset() { return xOffset; }

@@ -1,8 +1,10 @@
 #include "Crate.h"
 
-#define CRATE_SCALE 0.3
+#define DEFAULT_CRATE_SCALE 0.4
 #define SPRITE_FILEPATH TEXT("Crates\\")
 #define CRATE_SPRITE TEXT("Crate.png")
+#define HEAVY_CRATE_SPRITE TEXT("HeavyCrate.png")
+#define LIGHT_CRATE_SPRITE TEXT("LightCrate.png")
 
 #define DEFAULT_X_OFFSET 5
 #define DEFAULT_Y_OFFSET 5
@@ -12,8 +14,10 @@
 #define DEFAULT_GRAVITY 1
 #define COLL_ADJUST_ACCEL 1
 
-#define WEIGHT 5
-#define FORCE_GIVEN 0.7
+#define HEAVY_CRATE_THRESHOLD 12
+#define LIGHT_CRATE_THRESHOLD 3
+#define DEFAULT_WEIGHT 5
+#define DEFAULT_FORCE_GIVEN 0.7
 
 Crate::Crate(int leftOffset, int bottomOffset)
 {
@@ -29,9 +33,60 @@ Crate::Crate(int leftOffset, int bottomOffset)
 	yVelocity = DEFAULT_Y_VELOCITY;
 	friction = DEFAULT_FRICTION;
 	gravity = DEFAULT_GRAVITY;
+	crateWeight = DEFAULT_WEIGHT;
+	crateForceGiven = DEFAULT_FORCE_GIVEN;
+	crateScale = DEFAULT_CRATE_SCALE;
 
-	scaledWidth = sprite->GetWidth() * CRATE_SCALE;
-	scaledHeight = sprite->GetHeight() * CRATE_SCALE;
+	scaledWidth = sprite->GetWidth() * crateScale;
+	scaledHeight = sprite->GetHeight() * crateScale;
+}
+
+
+Crate::Crate(int leftOffset, int bottomOffset, unsigned int weight, float forceGiven, float scale)
+{
+	// Load sprite
+	wchar_t buff[355] = { '\0' };
+	if (weight >= HEAVY_CRATE_THRESHOLD)
+	{
+		swprintf(buff, TEXT("%s%s"), SPRITE_FILEPATH, HEAVY_CRATE_SPRITE);
+	}
+	else if (weight <= LIGHT_CRATE_THRESHOLD)
+	{
+		swprintf(buff, TEXT("%s%s"), SPRITE_FILEPATH, LIGHT_CRATE_SPRITE);
+	}
+	else
+	{
+		swprintf(buff, TEXT("%s%s"), SPRITE_FILEPATH, CRATE_SPRITE);
+	}
+	sprite = new Bitmap(buff);
+
+	// Set initial physics values
+	xOffset = leftOffset;
+	yOffset = bottomOffset;
+	xVelocity = DEFAULT_X_VELOCITY;
+	yVelocity = DEFAULT_Y_VELOCITY;
+	friction = DEFAULT_FRICTION;
+	gravity = DEFAULT_GRAVITY;
+	crateWeight = weight;
+	if (forceGiven < 0.0)
+	{
+		crateForceGiven = -forceGiven;
+	}
+	else
+	{
+		crateForceGiven = forceGiven;
+	}
+	if (scale < 0)
+	{
+		crateScale = -scale;
+	}
+	else
+	{
+		crateScale = scale;
+	}
+
+	scaledWidth = sprite->GetWidth() * crateScale;
+	scaledHeight = sprite->GetHeight() * crateScale;
 }
 
 
@@ -213,23 +268,23 @@ void Crate::HandleCollision(Crate* otherCrate)
 
 void Crate::ApplyHorizontalForce(int force)
 {
-	xVelocity += force / WEIGHT;
+	xVelocity += force / crateWeight;
 }
 
 
 void Crate::ApplyVerticalForce(int force)
 {
-	yVelocity += force / WEIGHT;
+	yVelocity += force / crateWeight;
 }
 
 
 int Crate::CalcHorizontalForce()
 {
-	return (xVelocity * WEIGHT) * (1 - FORCE_GIVEN);
+	return (xVelocity * crateWeight) * (1 - crateForceGiven);
 }
 
 
 int Crate::CalcVerticalForce()
 {
-	return (yVelocity * WEIGHT) * (1 - FORCE_GIVEN);
+	return (yVelocity * crateWeight) * (1 - crateForceGiven);
 }

@@ -94,7 +94,8 @@
   <ItemGroup>
     <Image Include="Background.bmp" />
     <Image Include="Crates\Crate.png" />
-    <Image Include="Crates\TNTCrate.png" />
+    <Image Include="Crates\HeavyCrate.png" />
+    <Image Include="Crates\LightCrate.png" />
     <Image Include="Foreground.bmp" />
     <Image Include="Midground.bmp" />
     <Image Include="ReptileSprites\RD.png" />
