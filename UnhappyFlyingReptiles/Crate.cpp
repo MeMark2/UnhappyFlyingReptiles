@@ -19,6 +19,16 @@
 #define DEFAULT_WEIGHT 5
 #define DEFAULT_FORCE_GIVEN 0.7
 
+
+/*
+Name:	Crate()
+Params:
+int leftOffset - The initial xOffset for the crate.
+int bottomOffset - The initial yOffset for the crate.
+Description:
+The constructor for the Crate class.
+The base movement information is set here.
+*/
 Crate::Crate(int leftOffset, int bottomOffset)
 {
 	// Load sprite
@@ -42,6 +52,19 @@ Crate::Crate(int leftOffset, int bottomOffset)
 }
 
 
+
+/*
+Name:	Crate()
+Params:
+int leftOffset - The initial xOffset for the crate.
+int bottomOffset - The initial yOffset for the crate.
+unsigned int weight - The weight of the crate.
+float forceGiven - The force that the crate gives up on impact.
+float scale - The factor by which to scale the crate.
+Description:
+The constructor for the Crate class.
+The base movement information is set here.
+*/
 Crate::Crate(int leftOffset, int bottomOffset, unsigned int weight, float forceGiven, float scale)
 {
 	// Load sprite
@@ -90,6 +113,14 @@ Crate::Crate(int leftOffset, int bottomOffset, unsigned int weight, float forceG
 }
 
 
+
+/*
+Name:	~Crate()
+Params: None
+Description:
+The destructor for the Crate class.
+The crate sprite is deallocated here.
+*/
 Crate::~Crate()
 {
 	// Deallocate the sprite
@@ -98,6 +129,14 @@ Crate::~Crate()
 
 
 
+/*
+Name:	Tick()
+Params: void
+Return: void
+Description:
+This method calculates the changes in offset and velocity of the crate
+after one interval of time.
+*/
 void Crate::Tick()
 {
 	// Calculate movement
@@ -128,6 +167,17 @@ void Crate::Tick()
 }
 
 
+
+/*
+Name:	DetectCollision()
+Params:
+Crate* otherCrate - The other crate to check the collision of the crate against.
+Return: void
+Description:
+This method calls the HandleCollision method if it detects that the crate has collided with another crate.
+The collision is detected by checking the relative position of the crates and
+comparing it to their size.
+*/
 void Crate::DetectCollision(Crate* otherCrate)
 {
 	int crateHalfWidth = scaledWidth / 2;
@@ -146,6 +196,18 @@ void Crate::DetectCollision(Crate* otherCrate)
 	}
 }
 
+
+
+/*
+Name:	HandleCollision()
+Params:
+Crate* otherCrate - The other crate to handle the collision of the crate.
+Return: void
+Description:
+This method assumes that the two crates have collided.
+The relative positions of the crates are calculated as well as their velocities and direction of impact.
+Using this information, forces from the impact are passed to the respective crates.
+*/
 void Crate::HandleCollision(Crate* otherCrate)
 {
 	int forceOfCrate = 0;
@@ -266,24 +328,62 @@ void Crate::HandleCollision(Crate* otherCrate)
 }
 
 
+
+/*
+Name:	ApplyHorizontalForce()
+Params:
+int force - The amount and directionality of force to be applied. Positive converts into motion to the right, negative to the left.
+Return: void
+Description:
+This method takes horizontal force applied to the crate and converts it into horizontal velocity based on the weight of the crate.
+*/
 void Crate::ApplyHorizontalForce(int force)
 {
 	xVelocity += force / crateWeight;
 }
 
 
+
+/*
+Name:	ApplyVerticalForce()
+Params:
+int force - The amount and directionality of force to be applied. Positive converts into upward motion, negative to downward.
+Return: void
+Description:
+This method takes vertical force applied to the crate and converts it into vertical velocity based on the weight of the crate.
+*/
 void Crate::ApplyVerticalForce(int force)
 {
 	yVelocity += force / crateWeight;
 }
 
 
+
+/*
+Name:	CalcHorizontalForce()
+Params: None
+Return: int - The amount of force to give.
+Description:
+This method calculates the amount of force that the crate can give up on horizontal impact.
+The calculation is based on the current horizontal velocity, the weight of the crate and the percentage of its force
+the crate gives up on impact.
+*/
 int Crate::CalcHorizontalForce()
 {
 	return (xVelocity * crateWeight) * (1 - crateForceGiven);
 }
 
 
+
+/*
+Name:	CalcVerticalForce()
+Params: None
+Return: int - The amount of force to give.
+Description:
+This method calculates the amount of force that the crate can give up on vertical impact.
+The calculation is based on the current vertical velocity, the weight of the crate and the percentage of its force
+the crate gives up on impact.
+*/
 int Crate::CalcVerticalForce()
 {
 	return (yVelocity * crateWeight) * (1 - crateForceGiven);

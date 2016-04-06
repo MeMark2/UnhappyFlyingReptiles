@@ -522,6 +522,17 @@ void UFReptileLogic::SetRandHorVel()
 }
 
 
+
+/*
+Name:	DetectCollision()
+Params: 
+Crate* crate - The crate to check the collision of the reptile against.
+Return: void
+Description:
+This method calls the HandleCollision method if it detects that the reptile has collided with a crate.
+The collision is detected by checking the relative position of the reptile to the crate and
+comparing it to the size of both.
+*/
 void UFReptileLogic::DetectCollision(Crate* crate)
 {
 	int reptileHalfWidth = scaledWidth / 2;
@@ -540,6 +551,18 @@ void UFReptileLogic::DetectCollision(Crate* crate)
 	}
 }
 
+
+
+/*
+Name:	HandleCollision()
+Params:
+Crate* crate - The crate to handle the collision of the reptile.
+Return: void
+Description:
+This method assumes that the reptile and the crate have collided.
+The relative positions of the crate and the reptile are calculated as well as the velocities and direction of impact.
+Using this information, forces from the impact are passed to the respective objects.
+*/
 void UFReptileLogic::HandleCollision(Crate* crate)
 {
 	int forceOfReptile = 0;
@@ -660,30 +683,76 @@ void UFReptileLogic::HandleCollision(Crate* crate)
 }
 
 
+
+/*
+Name:	ApplyHorizontalForce()
+Params:
+int force - The amount and directionality of force to be applied. Positive converts into motion to the right, negative to the left.
+Return: void
+Description:
+This method takes horizontal force applied to the reptile and converts it into horizontal velocity based on the weight of the reptile.
+*/
 void UFReptileLogic::ApplyHorizontalForce(int force)
 {
 	xVelocity += force / WEIGHT;
 }
 
 
+
+/*
+Name:	ApplyVerticalForce()
+Params:
+int force - The amount and directionality of force to be applied. Positive converts into upward motion, negative to downward.
+Return: void
+Description:
+This method takes vertical force applied to the reptile and converts it into vertical velocity based on the weight of the reptile.
+*/
 void UFReptileLogic::ApplyVerticalForce(int force)
 {
 	yVelocity += force / WEIGHT;
 }
 
 
+
+/*
+Name:	CalcHorizontalForce()
+Params: None
+Return: int - The amount of force to give.
+Description:
+This method calculates the amount of force that the reptile can give up on horizontal impact.
+The calculation is based on the current horizontal velocity, the weight of the reptile and the percentage of its force
+the reptile gives up on impact.
+*/
 int UFReptileLogic::CalcHorizontalForce()
 {
 	return (xVelocity * WEIGHT) * (1 - FORCE_GIVEN);
 }
 
 
+
+/*
+Name:	CalcVerticalForce()
+Params: None
+Return: int - The amount of force to give.
+Description:
+This method calculates the amount of force that the reptile can give up on vertical impact.
+The calculation is based on the current vertical velocity, the weight of the reptile and the percentage of its force
+the reptile gives up on impact.
+*/
 int UFReptileLogic::CalcVerticalForce()
 {
 	return (yVelocity * WEIGHT) * (1 - FORCE_GIVEN);
 }
 
 
+
+/*
+Name:	SetMinHorSpeed()
+Params: unsigned int horizontalSpeed - The minimum horizontal speed.
+Return: void
+Description:
+This method sets the minimum speed that the reptile can travel at in the air.
+*/
 void UFReptileLogic::SetMinHorSpeed(unsigned int horizontalSpeed)
 {
 	if (horizontalSpeed < maxXSpeed)
@@ -693,6 +762,14 @@ void UFReptileLogic::SetMinHorSpeed(unsigned int horizontalSpeed)
 }
 
 
+
+/*
+Name:	SetMaxHorSpeed()
+Params: unsigned int horizontalSpeed - The maximum horizontal speed.
+Return: void
+Description:
+This method sets the maximum speed that the reptile can travel at in the air.
+*/
 void UFReptileLogic::SetMaxHorSpeed(unsigned int horizontalSpeed)
 {
 	if (horizontalSpeed > minXSpeed)
