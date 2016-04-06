@@ -10,6 +10,8 @@ Description:
 #include "afxwin.h"
 #include <gdiplus.h>
 #include "UFReptileLogic.h"
+#include <vector>
+#include "Crate.h"
 #include "FMOD\inc\fmod.hpp"
 
 using namespace Gdiplus;
@@ -47,8 +49,7 @@ private:
 	int deadTicks; // To keep track of how long the reptile has been dead
 	bool floorHit; // To keep track of when the reptile first hits the ground
 
-	int scaleRptlWidth;
-	int scaleRptlHeight;
+	std::vector<Crate*> crates;
 
 	void MakeTransparent(Bitmap* bmp, Color color);
 

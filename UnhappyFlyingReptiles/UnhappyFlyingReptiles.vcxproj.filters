@@ -27,6 +27,9 @@
     <ClCompile Include="UFReptileLogic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Crate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UFRMainWindow.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UFReptileLogic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Crate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -80,6 +86,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="ReptileSprites\RF7.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Crates\Crate.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Crates\TNTCrate.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

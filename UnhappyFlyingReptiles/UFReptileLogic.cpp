@@ -29,10 +29,14 @@ Description:
 #define ROTATION_DEGREES 360
 #define DEATH_SPIN_DEGREES 5
 
+#define REPTILE_SCALE 0.1
 #define SPRITES_FILEPATH TEXT("ReptileSprites\\")
 #define REPTILE_SPRITE_EXT TEXT(".png")
 #define REPTILE_DEAD_SPRITE_PREFIX TEXT("RD")
 #define REPTILE_FLYING_SPRITE_PREFIX TEXT("RF")
+
+#define WEIGHT 20
+#define FORCE_GIVEN 0.6
 
 /*
 Name:	UFReptileLogic()
@@ -53,8 +57,11 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 	yVelocity = DEFAULT_Y_VELOCITY;
 	friction = DEFAULT_FRICTION;
 	gravity = DEFAULT_GRAVITY;
+
 	minFlightThreshold = DEFAULT_MIN_FLIGHT_THRESHOLD;
 	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
+	minXSpeed = MIN_RAND_X_SPEED;
+	maxXSpeed = MAX_RAND_X_SPEED;
 	
 	reptileState = REPTILE_STATE_FLYING;
 	wasFlying = true;
@@ -84,6 +91,10 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset)
 	// Set selected sprite
 	flyingSpriteIndex = 0;
 	selectedSprite = flyingSprites[flyingSpriteIndex];
+
+	// Calculate the scaled size of the reptile
+	scaledWidth = GetSpriteWidth() * REPTILE_SCALE;
+	scaledHeight = GetSpriteHeight() * REPTILE_SCALE;
 }
 
 /*
@@ -108,8 +119,11 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalV
 	yVelocity = verticalVelocity;
 	friction = DEFAULT_FRICTION;
 	gravity = DEFAULT_GRAVITY;
+
 	minFlightThreshold = DEFAULT_MIN_FLIGHT_THRESHOLD;
 	maxFlightThreshold = DEFAULT_MAX_FLIGHT_THRESHOLD;
+	minXSpeed = MIN_RAND_X_SPEED;
+	maxXSpeed = MAX_RAND_X_SPEED;
 
 	reptileState = REPTILE_STATE_FLYING;
 	wasFlying = true;
@@ -140,6 +154,10 @@ UFReptileLogic::UFReptileLogic(int leftOffset, int bottomOffset, int horizontalV
 	flyingSpriteIndex = 0;
 	selectedSprite = flyingSprites[flyingSpriteIndex];
 	buffer = selectedSprite->GetHeight();
+
+	// Calculate the scaled size of the reptile
+	scaledWidth = GetSpriteWidth() * REPTILE_SCALE;
+	scaledHeight = GetSpriteHeight() * REPTILE_SCALE;
 }
 
 
@@ -490,15 +508,195 @@ This method selects a random velocity for the reptile based on a minimum and max
 void UFReptileLogic::SetRandHorVel()
 {
 	// Get random value between -NumberOfAllowedSpeeds and (NumberOfAllowedSpeeds - 1)
-	int velBuff = (rand() % ((MAX_RAND_X_SPEED - MIN_RAND_X_SPEED) * 2)) - MIN_RAND_X_SPEED;
+	int velBuff = (rand() % ((maxXSpeed - minXSpeed) * 2)) - minXSpeed;
 
 	// Adjust based on going left or right
 	if (velBuff >= 0)
 	{
-		xVelocity = velBuff + MIN_RAND_X_SPEED;
+		xVelocity = velBuff + minXSpeed;
 	}
 	else
 	{
-		xVelocity = velBuff - (MIN_RAND_X_SPEED - 1);
+		xVelocity = velBuff - (minXSpeed - 1);
+	}
+}
+
+
+void UFReptileLogic::DetectCollision(Crate* crate)
+{
+	int reptileHalfWidth = scaledWidth / 2;
+	int reptileHalfHeight = scaledHeight / 2;
+	int crateHalfWidth = crate->GetWidth() / 2;
+	int crateHalfHeight = crate->GetHeight() / 2;
+	int deltaXCenters = (xOffset + reptileHalfWidth) - (crate->GetLeftOffset() + crateHalfWidth);
+	int deltaYCenters = (yOffset + reptileHalfHeight) - (crate->GetBottomOffset() + crateHalfHeight);
+
+	// If the distance between the centers of the reptile and crate is smaller in magnitude than the distances from the center
+	// of each shape to their corresponding edges added together, the objects are in collision
+	if (abs(deltaXCenters) <= reptileHalfWidth + crateHalfWidth && 
+		abs(deltaYCenters) <= reptileHalfHeight + crateHalfHeight)
+	{
+		HandleCollision(crate);
+	}
+}
+
+void UFReptileLogic::HandleCollision(Crate* crate)
+{
+	int forceOfReptile = 0;
+	int forceOfCrate = 0;
+	int deltaXCenters = (xOffset + scaledWidth / 2) - (crate->GetLeftOffset() + crate->GetWidth() / 2);
+	int deltaYCenters = (yOffset + scaledHeight / 2) - (crate->GetBottomOffset() + crate->GetHeight() / 2);
+
+	if (abs(deltaXCenters) >= abs(deltaYCenters)) // Collision happened from the side
+	{
+		if (deltaXCenters > 0) // The reptile is to the right and the crate is to the left
+		{
+			xOffset = crate->GetLeftOffset() + crate->GetWidth();
+
+			// If the reptile was moving towards the crate
+			if (xVelocity < 0)
+			{
+				// Calculate the collision force of the reptile
+				forceOfReptile = CalcHorizontalForce();
+			}
+
+			// If the crate was moving towards the reptile
+			if (crate->GetHorizontalVel() > 0)
+			{
+				// Calculate the collision force of the crate
+				forceOfCrate = crate->CalcHorizontalForce();
+			}
+
+			// The reptile gives up its force and gives it to the crate
+			ApplyHorizontalForce(-forceOfReptile);
+			crate->ApplyHorizontalForce(forceOfReptile);
+
+			// The crate gives up its force and gives it to the reptile
+			crate->ApplyHorizontalForce(-forceOfCrate);
+			ApplyHorizontalForce(forceOfCrate);
+		}
+		else // The reptile is to the left and the crate is to the right
+		{
+			xOffset = crate->GetLeftOffset() - scaledWidth;
+
+			// If the reptile was moving towards the crate
+			if (xVelocity > 0)
+			{
+				// Calculate the collision force of the reptile
+				forceOfReptile = CalcHorizontalForce();
+			}
+
+			// If the crate was moving towards the reptile
+			if (crate->GetHorizontalVel() < 0)
+			{
+				// Calculate the collision force of the crate
+				forceOfCrate = crate->CalcHorizontalForce();
+			}
+
+			// The reptile gives up its force and gives it to the crate
+			ApplyHorizontalForce(-forceOfReptile);
+			crate->ApplyHorizontalForce(forceOfReptile);
+
+			// The crate gives up its force and gives it to the reptile
+			crate->ApplyHorizontalForce(-forceOfCrate);
+			ApplyHorizontalForce(forceOfCrate);
+		}
+	}
+	else // The collision happened from the top or bottom
+	{
+		if (deltaYCenters > 0) // The reptile is above the crate
+		{
+			yOffset = crate->GetBottomOffset() + crate->GetHeight();
+
+			// If the reptile was moving towards the crate
+			if (yVelocity < 0)
+			{
+				// Calculate the collision force of the reptile
+				forceOfReptile = CalcVerticalForce();
+			}
+
+			// If the crate was moving towards the reptile
+			if (crate->GetVerticalVel() > 0)
+			{
+				// Calculate the collision force of the crate
+				forceOfCrate = crate->CalcVerticalForce();
+			}
+
+			// The reptile gives up its force and gives it to the crate
+			ApplyVerticalForce(-forceOfReptile);
+			crate->ApplyVerticalForce(forceOfReptile);
+
+			// The crate gives up its force and gives it to the reptile
+			crate->ApplyVerticalForce(-forceOfCrate);
+			ApplyVerticalForce(forceOfCrate);
+		}
+		else // The reptile is bellow the other crate
+		{
+			crate->SetBottomOffset(yOffset + scaledHeight);
+
+			// If the reptile was moving towards the crate
+			if (yVelocity > 0)
+			{
+				// Calculate the collision force of the reptile
+				forceOfReptile = CalcVerticalForce();
+			}
+
+			// If the crate was moving towards the reptile
+			if (crate->GetVerticalVel() < 0)
+			{
+				// Calculate the collision force of the crate
+				forceOfCrate = crate->CalcVerticalForce();
+			}
+
+			// The reptile gives up its force and gives it to the crate
+			ApplyVerticalForce(-forceOfReptile);
+			crate->ApplyVerticalForce(forceOfReptile);
+
+			// The crate gives up its force and gives it to the reptile
+			crate->ApplyVerticalForce(-forceOfCrate);
+			ApplyVerticalForce(forceOfCrate);
+		}
+	}
+}
+
+
+void UFReptileLogic::ApplyHorizontalForce(int force)
+{
+	xVelocity += force / WEIGHT;
+}
+
+
+void UFReptileLogic::ApplyVerticalForce(int force)
+{
+	yVelocity += force / WEIGHT;
+}
+
+
+int UFReptileLogic::CalcHorizontalForce()
+{
+	return (xVelocity * WEIGHT) * (1 - FORCE_GIVEN);
+}
+
+
+int UFReptileLogic::CalcVerticalForce()
+{
+	return (yVelocity * WEIGHT) * (1 - FORCE_GIVEN);
+}
+
+
+void UFReptileLogic::SetMinHorSpeed(unsigned int horizontalSpeed)
+{
+	if (horizontalSpeed < maxXSpeed)
+	{
+		minXSpeed = horizontalSpeed;
+	}
+}
+
+
+void UFReptileLogic::SetMaxHorSpeed(unsigned int horizontalSpeed)
+{
+	if (horizontalSpeed > minXSpeed)
+	{
+		maxXSpeed = horizontalSpeed;
 	}
 }

@@ -11,14 +11,17 @@ Description:
 
 #define BYTES_PER_PIXEL 4
 #define SLINGSHOT_SCALE 0.7
-#define REPTILE_SCALE 0.1
 
 #define INIT_LEFT_OFFSET 0
 #define INIT_GROUND_OFFSET 300
 #define DEFAULT_HORIZONTAL_VELOCITY 10
 #define DEFAULT_VERTICAL_VELOCITY 0
+#define HORIZONTAL_VEL_INCREASE 1.15
 
 #define REPTILE_RESET_TICKS 15
+
+#define NUM_OF_CRATES 5
+#define NUM_OF_TNT_CRATES 1
 
 #define SOUND_CHANNELS 16
 
@@ -68,9 +71,16 @@ UFRGame::UFRGame()
 	floorHit = false;
 	reptileFliesLeft = false;
 
-	// Calculate the scaled size of the reptile
-	scaleRptlWidth = reptileLogic->GetSpriteWidth() * REPTILE_SCALE;
-	scaleRptlHeight = reptileLogic->GetSpriteHeight() * REPTILE_SCALE;
+	// Create the crates
+	crates.push_back(new Crate(200, 50));
+	crates.push_back(new Crate(240, 50));
+	crates.push_back(new Crate(280, 50));
+	crates.push_back(new Crate(320, 50));
+	crates.push_back(new Crate(220, 100));
+	crates.push_back(new Crate(260, 100));
+	crates.push_back(new Crate(300, 100));
+	crates.push_back(new Crate(240, 150));
+	crates.push_back(new Crate(280, 150));
 
 	// Initiate mouse position
 	mouseX = 0;
@@ -100,6 +110,12 @@ UFRGame::~UFRGame()
 	delete bufferCanvas;
 
 	delete reptileLogic;
+
+	// delete crates
+	for (int crate = 0; crate < crates.size(); crate++)
+	{
+		delete crates[crate];
+	}
 
 	// release game sounds
 	shootSound->release();
@@ -183,9 +199,9 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 	// If the reptile is out of bounds of the screen, draw it on the other side
 	if (reptileLogic->GetLeftOffset() > imageWidth)
 	{
-		reptileLogic->SetLeftOffset(-scaleRptlWidth);
+		reptileLogic->SetLeftOffset(-reptileLogic->GetWidth());
 	}
-	else if (reptileLogic->GetLeftOffset() < -scaleRptlWidth)
+	else if (reptileLogic->GetLeftOffset() < -reptileLogic->GetWidth())
 	{
 		reptileLogic->SetLeftOffset(imageWidth);
 	}
@@ -197,19 +213,27 @@ void UFRGame::Draw(Graphics* canvas, CRect* dimensions)
 
 	// Set up tranformations for reptile:
 	// center, rotate, and return to original offset
-	bufferCanvas->TranslateTransform(-(reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), 
-		-(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2) );
+	bufferCanvas->TranslateTransform(-(reptileLogic->GetLeftOffset() + reptileLogic->GetWidth() / 2),
+		-(imageHeight - reptileLogic->GetBottomOffset() - reptileLogic->GetHeight() / 2));
 	bufferCanvas->RotateTransform(reptileLogic->GetReptileRotation(), MatrixOrderAppend);
-	bufferCanvas->TranslateTransform((reptileLogic->GetLeftOffset() + scaleRptlWidth / 2), 
-		(imageHeight - reptileLogic->GetBottomOffset() - scaleRptlHeight / 2), MatrixOrderAppend);
+	bufferCanvas->TranslateTransform((reptileLogic->GetLeftOffset() + reptileLogic->GetWidth() / 2),
+		(imageHeight - reptileLogic->GetBottomOffset() - reptileLogic->GetHeight() / 2), MatrixOrderAppend);
 
 	// Draw reptile with transformations
 	bufferCanvas->DrawImage(reptileLogic->GetSprite() , reptileLogic->GetLeftOffset(),
-		imageHeight - scaleRptlHeight - reptileLogic->GetBottomOffset(),
-		scaleRptlWidth, scaleRptlHeight);
+		imageHeight - reptileLogic->GetHeight() - reptileLogic->GetBottomOffset(),
+		reptileLogic->GetWidth(), reptileLogic->GetHeight());
 
 	// Clear transformations
 	bufferCanvas->ResetTransform();
+
+	// Draw crates
+	for (int crate = 0; crate < crates.size(); crate++)
+	{
+		bufferCanvas->DrawImage(crates[crate]->GetSprite(), crates[crate]->GetLeftOffset(),
+			imageHeight - crates[crate]->GetHeight() - crates[crate]->GetBottomOffset(),
+			crates[crate]->GetWidth(), crates[crate]->GetHeight());
+	}
 
 	// Draw slingshot to buffer at mouse postition 
 	// (the center of the slingshot firing area is adjusted to the mouse position)
@@ -234,6 +258,27 @@ void UFRGame::CalcGameState()
 {
 	int newHorizontalVelocity = DEFAULT_HORIZONTAL_VELOCITY;
 
+	// Calculate new location of the crates.
+	for (int crate = 0; crate < crates.size(); crate++)
+	{
+		crates[crate]->Tick();
+	}
+
+	// Calculate collision of reptile with crates
+	for (int crate = 0; crate < crates.size(); crate++)
+	{
+		reptileLogic->DetectCollision(crates[crate]);
+	}
+
+	// Calculate collision on all crate pairs crates
+	for (int crate = 0; crate < crates.size(); crate++)
+	{
+		for (int otherCrate = crate + 1; otherCrate < crates.size(); otherCrate++)
+		{
+			crates[crate]->DetectCollision(crates[otherCrate]);
+		}
+	}
+
 	// Calculate new reptile location.
 	reptileLogic->Tick();
 
@@ -255,8 +300,15 @@ void UFRGame::CalcGameState()
 			newHorizontalVelocity = -newHorizontalVelocity;
 		}
 
-		reptileLogic->SetOffsetAndVelocity(0 - scaleRptlWidth, INIT_GROUND_OFFSET, newHorizontalVelocity, DEFAULT_VERTICAL_VELOCITY);
+		reptileLogic->SetOffsetAndVelocity(0 - reptileLogic->GetWidth(), INIT_GROUND_OFFSET, newHorizontalVelocity, DEFAULT_VERTICAL_VELOCITY);
 		reptileLogic->SetReptileState(REPTILE_STATE_FLYING);
+
+		// Set new min/max horizontal velocity to faster then before
+		reptileLogic->SetMaxHorSpeed(reptileLogic->GetMaxHorSpeed() * HORIZONTAL_VEL_INCREASE);
+		reptileLogic->SetMinHorSpeed(reptileLogic->GetMinHorSpeed() * HORIZONTAL_VEL_INCREASE);
+
+		// Select starting velocity
+		reptileLogic->SetRandHorVel();
 		
 		// Reset dead ticks and floor hit
 		deadTicks = 0;
@@ -290,8 +342,8 @@ void UFRGame::Click(int windowX, int windowY, CRect* windowDimensions)
 	fmodSystem->playSound(FMOD_CHANNEL_FREE, shootSound, false, 0);
 
 	// If reptile is clicked, change to falling state
-	if (x > reptileLogic->GetLeftOffset() && x < reptileLogic->GetLeftOffset() + scaleRptlWidth &&
-		y > imageHeight - (reptileLogic->GetBottomOffset() + scaleRptlHeight) && y < imageHeight - reptileLogic->GetBottomOffset())
+	if (x > reptileLogic->GetLeftOffset() && x < reptileLogic->GetLeftOffset() + reptileLogic->GetWidth() &&
+		y > imageHeight - (reptileLogic->GetBottomOffset() + reptileLogic->GetHeight()) && y < imageHeight - reptileLogic->GetBottomOffset())
 	{
 		reptileLogic->SetReptileState(REPTILE_STATE_FALLING);
 		fmodSystem->playSound(FMOD_CHANNEL_FREE, punchSound, false, 0);

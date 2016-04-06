@@ -14,6 +14,7 @@ Description:
 #include <time.h>
 #include <vector>
 #include <gdiplus.h>
+#include "Crate.h"
 
 using namespace Gdiplus;
 
@@ -30,6 +31,9 @@ Description:
 class UFReptileLogic
 {
 private:
+	int scaledWidth;
+	int scaledHeight;
+
 	int xOffset; // The offset from the left of the screen
 	int yOffset; // The offset from the bottom of the screen
 
@@ -41,6 +45,9 @@ private:
 
 	unsigned int minFlightThreshold;
 	unsigned int maxFlightThreshold;
+
+	unsigned int minXSpeed;
+	unsigned int maxXSpeed;
 
 	int reptileState; 
 
@@ -81,6 +88,14 @@ public:
 	int GetHorizontalVel() { return xVelocity; }
 	int GetVerticaltalVel() { return yVelocity; }
 
+	unsigned int GetMinHorSpeed() { return minXSpeed; }
+	unsigned int GetMaxHorSpeed() { return maxXSpeed; }
+	void SetMinHorSpeed(unsigned int horizontalSpeed);
+	void SetMaxHorSpeed(unsigned int horizontalSpeed);
+
+	int GetHeight() { return scaledHeight; }
+	int GetWidth() { return scaledWidth; }
+
 	int GetReptileRotation() { return reptileRotation; }
 
 	int GetReptileState() { return reptileState;  }
@@ -95,5 +110,13 @@ public:
 	Bitmap* GetSprite() { return selectedSprite; }
 	int GetSpriteHeight() { return selectedSprite->GetHeight(); }
 	int GetSpriteWidth() { return selectedSprite->GetWidth(); }
+
+	void DetectCollision(Crate* otherCrate);
+	void HandleCollision(Crate* otherCrate);
+
+	void ApplyHorizontalForce(int force);
+	void ApplyVerticalForce(int force);
+	int CalcHorizontalForce();
+	int CalcVerticalForce();
 };
 

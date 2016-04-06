@@ -79,18 +79,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Crate.cpp" />
     <ClCompile Include="UFRApp.cpp" />
     <ClCompile Include="UFReptileLogic.cpp" />
     <ClCompile Include="UFRGame.cpp" />
     <ClCompile Include="UFRMainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Crate.h" />
     <ClInclude Include="UFReptileLogic.h" />
     <ClInclude Include="UFRGame.h" />
     <ClInclude Include="UFRMainWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Background.bmp" />
+    <Image Include="Crates\Crate.png" />
+    <Image Include="Crates\TNTCrate.png" />
     <Image Include="Foreground.bmp" />
     <Image Include="Midground.bmp" />
     <Image Include="ReptileSprites\RD.png" />
